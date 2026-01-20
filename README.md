@@ -1,3 +1,12 @@
+# GRU4REC with TORCH_MUSA
+```bash
+# 1. 数据预处理
+python retailrocket_preproc.py -p path/to/RetailRocket/
+
+# 2. 单卡训练，其他卡数更改传参即可，上限8卡（默认不加参数也是8卡）
+bash multi_train_on_musa.sh 1
+```
+
 # Official PyTorch implementation of GRU4Rec
 Official (re)implementation of the GRU4Rec [1,2] algorithm in **PyTorch**. The **original Theano** implementation is available at [https://github.com/hidasib/GRU4Rec](https://github.com/hidasib/GRU4Rec). If you are looking for the official **Tensorflow** (re)implementation, you can find it at [https://github.com/hidasib/GRU4Rec_Tensorflow_Official](https://github.com/hidasib/GRU4Rec_Tensorflow_Official).
 
