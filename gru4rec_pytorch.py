@@ -2,7 +2,11 @@ import math
 import numpy as np
 import pandas as pd
 import torch
-import torch_musa
+
+try:
+    import torch_musa
+except Exception as e:
+    pass
 from torch import autograd, nn
 from torch.autograd import Variable
 import torch.distributed as dist
@@ -11,6 +15,12 @@ import time
 from tqdm import tqdm
 
 from torch.optim import Optimizer
+
+default_device = None
+if torch.cuda.is_available():
+    default_device = torch.device("cuda:0")
+elif hasattr(torch, "musa") and torch.musa.is_available():
+    default_device = torch.device("musa:0")
 
 
 class IndexedAdagradM(Optimizer):
@@ -313,9 +323,7 @@ class GRU4RecModel(nn.Module):
 
 
 class SampleCache:
-    def __init__(
-        self, n_sample, sample_cache_max_size, distr, device=torch.device("musa:0")
-    ):
+    def __init__(self, n_sample, sample_cache_max_size, distr, device=default_device):
         self.device = device
         self.n_sample = n_sample
         self.generate_length = sample_cache_max_size // n_sample if n_sample > 0 else 0
@@ -372,7 +380,7 @@ class SessionDataIterator:
         session_key="SessionId",
         time_key="Time",
         session_order="time",
-        device=torch.device("musa:0"),
+        device=default_device,
         itemidmap=None,
     ):
         self.device = device
@@ -512,7 +520,7 @@ class GRU4Rec:
         bpreg=1.0,
         elu_param=0.5,
         logq=0.0,
-        device=torch.device("musa:0"),
+        device=default_device,
     ):
         self.device = device
         self.layers = layers

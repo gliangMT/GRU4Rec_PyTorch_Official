@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-rm -rf .mccl_error*
 LOG_DIR=logs
 mkdir -p ${LOG_DIR}
 mkdir -p train_model
@@ -30,28 +29,19 @@ LOG_FILE=${LOG_DIR}/train_${TIMESTAMP}_${GPU_NUM}_gpus.log
 echo "[INFO] Using GPU_NUM=${GPU_NUM}"
 echo "[INFO] Logging to ${LOG_FILE}"
 
-export MCCL_PROTOS=2
-export MCCL_ALGOS=1
-export MCCL_BUFFSIZE=20971520
-# export MUSA_BLOCK_SCHEDULE_MODE=1
-export MCCL_IB_GID_INDEX=3
-export MCCL_NET_SHARED_BUFFERS=0
-# export MUSA_EXECUTION_TIMEOUT=32000000
-export MUSA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 
 # for debug
 # export TORCH_SHOW_CPP_STACKTRACES=1
 # export TORCH_CPP_LOG_LEVEL=INFO
-# export MUDNN_LOG_LEVEL=INFO
-# export MUSA_LAUNCH_BLOCKING=1
-# export MCCL_DEBUG=INFO 
-# export MCCL_DEBUG_SUBSYS=ALL
+
 
 torchrun --nproc_per_node=${GPU_NUM} \
     run.py ../datasets/RetailRocket/retailrocket_processed_view_train_full.tsv \
     -t ../datasets/RetailRocket/retailrocket_processed_view_test.tsv \
     -m 1 5 10 20 \
-    -ps layers=224,batch_size=80,dropout_p_embed=0.5,dropout_p_hidden=0.05,learning_rate=0.05,momentum=0.4,n_sample=2048,sample_alpha=0.4,bpreg=1.95,logq=0.0,loss=bpr-max,constrained_embedding=True,elu_param=0.5,n_epochs=50 \
+    -ps layers=224,batch_size=80,dropout_p_embed=0.5,dropout_p_hidden=0.05,learning_rate=0.05,momentum=0.4,n_sample=2048,sample_alpha=0.4,bpreg=1.95,logq=0.0,loss=bpr-max,constrained_embedding=True,elu_param=0.5,n_epochs=10 \
     -s ./train_model/save_model.pt \
     2>&1 | tee ${LOG_FILE}
 
